@@ -1,18 +1,22 @@
 from sqlalchemy import create_engine
-from sqlalchemy import sessionMaker
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
+# Database URL (SQLite in this case)
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
-engine=create_engine(
-    SQLALCHEMY_DATABASE_URL,
-     connect_args={"check_same_thread": False}  # this false : only allowed to create 1 connection at a time or 1 thread
-     )
-SessionLocal=sessionMaker(
-    autocommit=False,# sesson perform sone this automaticaly 
-    autoFlash=False,# so we make it False 
-    bind=engine # binding the session with engine
-    )
 
-#Creating Database object 
-Base=declarative_base()
- 
+# Create engine
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL,
+    connect_args={"check_same_thread": False}  # Needed only for SQLite
+)
+
+# Session factory
+SessionLocal = sessionmaker(
+    autocommit=False,   # We commit manually with session.commit()
+    autoflush=False,    # Changes are not flushed to DB until commit
+    bind=engine         # Bind session to our engine
+)
+
+# Base class for ORM models
+Base = declarative_base()
