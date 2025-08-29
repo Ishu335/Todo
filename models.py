@@ -2,7 +2,7 @@
 from database import Base
 from sqlalchemy import Column, Integer, String, Boolean
 
-class Todo(Base):  
+class Todos(Base):  
     __tablename__ = "todos"   # Table name in the database
 
     id = Column(Integer, primary_key=True, index=True)
