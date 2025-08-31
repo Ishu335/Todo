@@ -1,4 +1,0 @@
-pip install Fatsapi
-pip install uvicorn[standard]
-pip install sqlalchemy
-
