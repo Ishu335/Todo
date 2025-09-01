@@ -1,7 +1,10 @@
-from fastapi import APIRouter,status
+from fastapi import APIRouter,status,Depends
 from pydantic import BaseModel
 from  models import Users
 from passlib.context import CryptContext
+from database import SessionLocal  # Make sure this import matches your project structure
+from sqlalchemy.orm import Session
+from typing import Annotated
 
 router = APIRouter()
 bcrypt_context=CryptContext(schemes=['bcrypt'],deprecated='auto')
@@ -16,8 +19,17 @@ class CreateUserRequest(BaseModel):
     hashed_password:str
     role:str
 
-@router.post("/auth/")
-async def create_user(creted_user_request:CreateUserRequest,status_code=status.HTTP_201_CREATED):
+def get_db():
+    db=SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+db_dependency=Annotated[Session,Depends(get_db)]
+
+@router.post("/auth",status_code=status.HTTP_201_CREATED)
+async def create_user(db:db_dependency,
+                       creted_user_request:CreateUserRequest):
     create_user_model=Users(
         email=creted_user_request.email,
         username=creted_user_request.username,
@@ -28,4 +40,5 @@ async def create_user(creted_user_request:CreateUserRequest,status_code=status.H
         is_active=True
         )
     # raise HTTP_ss
-    return create_user_model
+    db.add(create_user_model)
+    db.commit()
