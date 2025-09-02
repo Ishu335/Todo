@@ -5,6 +5,7 @@ from typing import Annotated
 from database import  SessionLocal
 import models
 from models import Todos
+
 router = APIRouter()
 
 # Database dependency
@@ -16,16 +17,18 @@ def get_db():
         db.close()
 
 db_dependency = Annotated[Session, Depends(get_db)]
+
+# This class is Used for Validation 
 class TodoRequest(BaseModel):
     title: str = Field(min_length=3)
     description: str = Field(min_length=3, max_length=100)
     priority: int = Field(gt=0, lt=6)
     complete: bool = Field(default=False)
 
-
+# Read all the books in Database
 @router.get("/", status_code=status.HTTP_200_OK)
 async def read_all(db: db_dependency):
-    # ✅ FIX: Ensure query returns list, not ORM objects directly
+    # Ensure query returns list, not ORM objects directly
     return db.query(models.Todos).all()
 
 
@@ -42,7 +45,7 @@ async def create_todo(db: db_dependency, todo_request: TodoRequest):
     todo_model = models.Todos(**todo_request.dict())
     db.add(todo_model)
     db.commit()
-    db.refresh(todo_model)   # ✅ FIX: refresh to get new ID
+    db.refresh(todo_model)   # refresh to get new ID
     return todo_model
 
 
@@ -61,7 +64,7 @@ async def update_data(db: db_dependency,
         todo_model.complete = todo_request.complete
         db.add(todo_model)
         db.commit()
-        db.refresh(todo_model)   # ✅ FIX: refresh after update
+        db.refresh(todo_model)   # refresh after update
 
 
 @router.delete("/todo/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
