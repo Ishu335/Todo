@@ -8,7 +8,7 @@ class Users(Base):
     id = Column(Integer, primary_key=True, index=True)
     email=Column(String,unique=True)
     username = Column(String, unique=True)
-    frist_name=Column(String)
+    first_name=Column(String)
     last_name=Column(String)
     hashed_password = Column(String)
     is_active=Column(Boolean,default=True)
@@ -16,6 +16,7 @@ class Users(Base):
 
 class Todos(Base):  
     __tablename__ = "todos"   # Table name in the database
+    
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, nullable=False)
     description = Column(String, nullable=True)

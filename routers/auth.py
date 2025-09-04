@@ -15,7 +15,7 @@ router = APIRouter(
     tags=['auth']
 )
 
-SCREAT_KEY = '7c6e7f0f826d65ba4f3c82838c92b1cfa26efc4377b30f337465a286782d0226'
+SECRET_KEY = '7c6e7f0f826d65ba4f3c82838c92b1cfa26efc4377b30f337465a286782d0226'
 ALGORITHM = 'HS256'
 
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
@@ -24,7 +24,7 @@ oauth2_bearer=OAuth2PasswordBearer(tokenUrl='auth/token')
 class CreateUserRequest(BaseModel):
     username: str
     email: str
-    frist_name: str
+    first_name: str
     last_name: str
     hashed_password: str
     role: str
@@ -43,7 +43,9 @@ def get_db():
 db_dependency = Annotated[Session, Depends(get_db)]
 
 def authenticate_user(username: str, password: str, db):
-    users = db.query(Users).filter(Users.username == username).first()
+    users = db.query(Users).filter(
+        (Users.username == username) | (Users.email == username)
+    ).first()
     if not users:
         return False
     if not bcrypt_context.verify(password, users.hashed_password):
@@ -51,21 +53,23 @@ def authenticate_user(username: str, password: str, db):
     return users
 
 
-def create_access_token(username: str, user_id: int, expires_delta: timedelta):
-    encode = {'sub': username, "id": user_id}  # ✅ Fixed: use "id" as string
+def create_access_token(username: str, user_id: int, role:str, expires_delta: timedelta):
+    encode = {'sub': username, "id": user_id,'role':role}  
     expires = datetime.now(timezone.utc) + expires_delta
     encode.update({'exp': expires})
-    return jwt.encode(encode, SCREAT_KEY, algorithm=ALGORITHM)
+    return jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
 
 async def get_current_user(token:Annotated[str,Depends(oauth2_bearer)]):
     try:
-        payload=jwt.decode(token,SECRET_KEY,algorithem=[ALGORITHM])
+        payload=jwt.decode(token,SECRET_KEY,algorithms=[ALGORITHM])
         username:str=payload.get("sub")
-        use_id:int=payload.get('id')
-        if username is None  or use_id is None:
+        user_id:int=payload.get('id')
+        user_role:str=payload.get('role')
+
+        if username is None  or user_id is None:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                                 detail='Could not Validate user.')
-        return {'   ':username,'id':user_id}
+        return {'username':username,'id':user_id,'user_role':user_role}
     except JWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                                 detail='Could not Validate user.')
@@ -76,7 +80,7 @@ async def create_user(db: db_dependency, creted_user_request: CreateUserRequest)
     create_user_model = Users(
                                 email=creted_user_request.email,
                                 username=creted_user_request.username,
-                                frist_name=creted_user_request.frist_name,
+                                first_name=creted_user_request.first_name,
                                 last_name=creted_user_request.last_name,
                                 role=creted_user_request.role,
                                 hashed_password=bcrypt_context.hash(creted_user_request.hashed_password),
@@ -85,7 +89,7 @@ async def create_user(db: db_dependency, creted_user_request: CreateUserRequest)
     db.add(create_user_model)
     db.commit()
 
-@router.post("/tooken", response_model=Token)
+@router.post("/token", response_model=Token)
 async def login_for_access_token(
                     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
                     db: db_dependency):
@@ -93,6 +97,6 @@ async def login_for_access_token(
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                                 detail='Could not Validate user.')
-    token = create_access_token(user.username, user.id, timedelta(minutes=20))
+    token = create_access_token(user.username, user.id,user.role, timedelta(minutes=20))
     return {'access_token': token, 'token_type': 'bearer'}  
 
