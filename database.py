@@ -3,13 +3,13 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
 # Database URL (SQLite in this case)
-SQLALCHEMY_DATABASE_URL = "sqlite:///./testapp.db"
+# SQLALCHEMY_DATABASE_URL = "postgresql://postgres:admin@localhost:5432/TodoApplicationDatabase" <== Postgread SSQL
+SQLALCHEMY_DATABASE_URL = "mysql+pymysql://root:mysql@localhost:3306/TodoApplicationDatabase"  #<== MYSQSL
+
+
 
 # Create engine
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
-    connect_args={"check_same_thread": False}  # Needed only for SQLite
-)
+engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
 # Session factory
 SessionLocal = sessionmaker(
@@ -20,3 +20,4 @@ SessionLocal = sessionmaker(
 
 # Base class for ORM models
 Base = declarative_base()
+
