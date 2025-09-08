@@ -20,6 +20,8 @@ class Change_pass(BaseModel):
     passWord: str 
     newPassword:str=Field(min_length=3)
 
+class Update_Phone_num(BaseModel):
+    phone_number:str=Field(min_length=1,max_length=10)
 
 # Database dependency
 def get_db():
@@ -54,6 +56,16 @@ async def change_password(user:user_dependency,db:db_dependency,passChage_reques
     db.add(change_pass)         
     db.commit()
 
+@router.put("/phone_number",status_code=status.HTTP_204_NO_CONTENT)
+async def add_phone_number(user:user_dependency,db:db_dependency,phone_number:Update_Phone_num=Body()
+    if user is None:
+        raise HTTPException(status_code=401,detail='Authentication Failed')
+    
+    add_phone=db.query(models.Users).filter(models.Users.id==user.get('id')).first()
+    add_phone.phone_number=phone_number.phone_number
+    db.add(add_phone)
+    db.commit()
+    
 
 
     
