@@ -12,7 +12,7 @@ from models import Todos
 from passlib.context import CryptContext
 
 router=APIRouter(
-     prefix='/user'
+     prefix='/user' 
     ,tags=['user']
 )
 
@@ -32,7 +32,7 @@ def get_db():
         db.close()
 
 db_dependency = Annotated[Session, Depends(get_db)]
-user_dependency=Annotated[dict,Depends(get_current_user)]
+user_dependency=Annotated[dict,Depends( )]
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
 @router.get("/")
@@ -57,13 +57,13 @@ async def change_password(user:user_dependency,db:db_dependency,passChage_reques
     db.commit()
 
 @router.put("/phone_number",status_code=status.HTTP_204_NO_CONTENT)
-async def add_phone_number(user:user_dependency,db:db_dependency,phone_number:Update_Phone_num=Body()
+async def add_phone_number(user:user_dependency,db:db_dependency,phone_number:Update_Phone_num=Body()):
     if user is None:
         raise HTTPException(status_code=401,detail='Authentication Failed')
     
     add_phone=db.query(models.Users).filter(models.Users.id==user.get('id')).first()
     add_phone.phone_number=phone_number.phone_number
-    db.add(add_phone)
+    db.add(add_phone) 
     db.commit()
     
 

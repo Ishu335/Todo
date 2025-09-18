@@ -28,6 +28,7 @@ class CreateUserRequest(BaseModel):
     last_name: str
     hashed_password: str
     role: str
+    phone_number:str
 
 class Token(BaseModel):
     access_token: str   
@@ -70,7 +71,7 @@ async def get_current_user(token:Annotated[str,Depends(oauth2_bearer)]):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                                 detail='Could not Validate user.')
         return {'username':username,'id':user_id,'user_role':user_role}
-    except JWTError:
+    except JWTError:            
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                                 detail='Could not Validate user.')
 
@@ -84,7 +85,8 @@ async def create_user(db: db_dependency, creted_user_request: CreateUserRequest)
                                 last_name=creted_user_request.last_name,
                                 role=creted_user_request.role,
                                 hashed_password=bcrypt_context.hash(creted_user_request.hashed_password),
-                                is_active=True
+                                is_active=True,
+                                phone_number=creted_user_request.phone_number
                             )
     db.add(create_user_model)
     db.commit()
