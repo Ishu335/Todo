@@ -4,8 +4,8 @@ from .routers import auth,todos,admin,user
 from fastapi.staticfiles import  StaticFiles
 app = FastAPI()
 
-templates=Jinja2Templates(directory="Todo\templates")
-app.mount("/static",StaticFiles(directory="Todo\static"),name="static")
+templates=Jinja2Templates(directory=r"Todo\templates")
+app.mount("/static",StaticFiles(directory=r"Todo\static"),name="static")
 @app.get("/")   
 def test(request:Request):
     return templates.TemplateResponse("home.html",{"request":request})
