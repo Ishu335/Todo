@@ -5,10 +5,9 @@ from fastapi import APIRouter, Depends, HTTPException, status, Path, Body
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from typing import Annotated
-from database import  SessionLocal
-import models
+from ..database import  SessionLocal
 from .auth  import get_current_user
-from models import Todos
+from ..models import Todos,Users
 from passlib.context import CryptContext
 
 router=APIRouter(
@@ -40,7 +39,7 @@ async def get_user(user:user_dependency,db:db_dependency):
     if user is None:
         raise HTTPException(status_code=401,detail='Authentication Failed')
     else:
-        return db.query(models.Users).filter(models.Users.id==user.get('id')).first()   
+        return db.query(Users).filter(Users.id==user.get('id')).first()   
     
 
 @router.put("/change_password",status_code=status.HTTP_204_NO_CONTENT)
@@ -48,7 +47,7 @@ async def change_password(user:user_dependency,db:db_dependency,passChage_reques
     if user is None:
         raise HTTPException(status_code=401,detail='Authentication Failed')
 
-    change_pass=db.query(models.Users).filter(models.Users.id==user.get('id')).first()
+    change_pass=db.query(Users).filter(Users.id==user.get('id')).first()
 
     if not bcrypt_context.verify(passChage_request.passWord,change_pass.hashed_password):
         raise HTTPException(status_code=401,detail='Error on password change')
@@ -61,7 +60,7 @@ async def add_phone_number(user:user_dependency,db:db_dependency,phone_number:Up
     if user is None:
         raise HTTPException(status_code=401,detail='Authentication Failed')
     
-    add_phone=db.query(models.Users).filter(models.Users.id==user.get('id')).first()
+    add_phone=db.query(Users).filter(Users.id==user.get('id')).first()
     add_phone.phone_number=phone_number.phone_number
     db.add(add_phone) 
     db.commit()

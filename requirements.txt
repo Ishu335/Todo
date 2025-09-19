@@ -6,3 +6,5 @@ python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
 alembic==1.11.1
 pydantic==2.7.1
+email-validator==2.0.0
+psycopg2-binary==2.9.6

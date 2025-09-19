@@ -1,5 +1,5 @@
 # This defines a SQLAlchemy ORM model for the "todos" table
-from database import Base
+from .database import Base
 from sqlalchemy import Column, Integer, String, Boolean,ForeignKey
 
 class Users(Base):
