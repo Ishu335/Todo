@@ -1,14 +1,14 @@
-from fastapi import APIRouter, status, Depends,HTTPException
+from fastapi import APIRouter, status, Depends,HTTPException,Request
 from pydantic import BaseModel
-from ..models import Users
+from Todo.models import Users
 from passlib.context import CryptContext
-from ..database import SessionLocal
+from Todo.database import SessionLocal
 from sqlalchemy.orm import Session
 from typing import Annotated
 from fastapi.security import OAuth2PasswordRequestForm,OAuth2PasswordBearer
 from jose import jwt,JWTError
 from datetime import timedelta, datetime, timezone
-import secrets
+from fastapi.templating import Jinja2Templates
 
 router = APIRouter(
     prefix='/auth',
@@ -42,6 +42,21 @@ def get_db():
         db.close()
 
 db_dependency = Annotated[Session, Depends(get_db)]
+templates=Jinja2Templates(directory="Todo/templates")
+
+# Pages 
+@router.get("/login-page")
+def render_login_page(request:Request):
+    return templates.TemplateResponse("login.html",{"request":request})
+
+@router.get("/register-page")
+def render_register_page(request:Request):
+    return templates.TemplateResponse("register.html",{"request":request})
+
+# @router.get("/todo-page")
+# def render_todo_page(request:Request):
+#     return templates.TemplateResponse("todo.html",{"request":request})
+
 
 def authenticate_user(username: str, password: str, db):
     users = db.query(Users).filter(
@@ -90,12 +105,15 @@ async def create_user(db: db_dependency, creted_user_request: CreateUserRequest)
                             )
     db.add(create_user_model)
     db.commit()
+    return "Created Successfuly"
+
 
 @router.post("/token", response_model=Token)
 async def login_for_access_token(
                     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
                     db: db_dependency):
     user = authenticate_user(form_data.username, form_data.password, db)
+    print(form_data.username, form_data.password)
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                                 detail='Could not Validate user.')

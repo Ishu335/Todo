@@ -2,9 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, status, Path
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from typing import Annotated
-from ..database import  SessionLocal
+from Todo.database import  SessionLocal
 from .auth  import get_current_user
-from ..models import Todos
+from Todo.models import Todos
 
 router = APIRouter(
     prefix='/admin'
@@ -12,7 +12,7 @@ router = APIRouter(
 )
 
 # Database dependency
-def get_db():
+def get_db():   
     db = SessionLocal()
     try:
         yield db

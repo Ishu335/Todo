@@ -25,7 +25,7 @@
                     body: JSON.stringify(payload)
                 });
 
-                if (response.ok) {
+                if (response.ok) {  
                     form.reset(); // Clear the form
                 } else {
                     // Handle error
@@ -88,36 +88,39 @@
         }
     });
 
-        document.getElementById('deleteButton').addEventListener('click', async function () {
-            var url = window.location.pathname;
-            const todoId = url.substring(url.lastIndexOf('/') + 1);
+        const deleteButton = document.getElementById('deleteButton');
+        if (deleteButton) {
+            deleteButton.addEventListener('click', async function () {
+                var url = window.location.pathname;
+                const todoId = url.substring(url.lastIndexOf('/') + 1);
 
-            try {
-                const token = getCookie('access_token');
-                if (!token) {
-                    throw new Error('Authentication token not found');
-                }
-
-                const response = await fetch(`/todos/todo/${todoId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
+                try {
+                    const token = getCookie('access_token');
+                    if (!token) {
+                        throw new Error('Authentication token not found');
                     }
-                });
 
-                if (response.ok) {
-                    // Handle success
-                    window.location.href = '/todos/todo-page'; // Redirect to the todo page
-                } else {
-                    // Handle error
-                    const errorData = await response.json();
-                    alert(`Error: ${errorData.detail}`);
+                    const response = await fetch(`/todos/todo/${todoId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        // Handle success
+                        window.location.href = '/todos/todo-page'; // Redirect to the todo page
+                    } else {
+                        // Handle error
+                        const errorData = await response.json();
+                        alert(`Error: ${errorData.detail}`);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again.');
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('An error occurred. Please try again.');
-            }
-        });
+            });
+        }
 
         
     }
@@ -187,11 +190,11 @@
                 last_name: data.lastname,
                 role: data.role,
                 phone_number: data.phone_number,
-                password: data.password
+                hashed_password: data.password
             };
 
             try {
-                const response = await fetch('/auth', {
+                const response = await fetch('/auth/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

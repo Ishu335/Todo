@@ -5,9 +5,9 @@ from fastapi import APIRouter, Depends, HTTPException, status, Path, Body
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from typing import Annotated
-from ..database import  SessionLocal
+from Todo.database import  SessionLocal
 from .auth  import get_current_user
-from ..models import Todos,Users
+from Todo.models import Todos,Users
 from passlib.context import CryptContext
 
 router=APIRouter(
