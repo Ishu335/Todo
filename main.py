@@ -1,11 +1,11 @@
 from fastapi import FastAPI,Request
 from fastapi.templating import Jinja2Templates
-from Todo.routers import auth,todos,admin,user
+from routers import auth,todos,admin,user
 from fastapi.staticfiles import  StaticFiles
 app = FastAPI()
 
-templates=Jinja2Templates(directory=r"Todo\templates")
-app.mount("/static",StaticFiles(directory=r"Todo\static"),name="static")
+templates=Jinja2Templates(directory=r"templates")
+app.mount("/static",StaticFiles(directory=r"static"),name="static")
 
 @app.get("/")   
 def test(request:Request):

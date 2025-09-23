@@ -2,10 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException, status, Path,Request,stat
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from typing import Annotated
-from Todo.database import  SessionLocal
+from database import  SessionLocal
 # import models
 from .auth  import get_current_user
-from Todo.models import Todos
+from models import Todos
 from starlette.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 templates=Jinja2Templates(directory="Todo/templates")
